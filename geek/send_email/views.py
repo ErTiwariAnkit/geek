@@ -1,3 +1,4 @@
+from email import message
 from django.shortcuts import render
 from django.core.mail import send_mail
 from django.http.response import HttpResponse
@@ -6,16 +7,30 @@ from django.views import View
 from rest_framework import views, status
 from rest_framework.response import Response
 from geek.settings import EMAIL_HOST_USER
+from django.core.mail import EmailMultiAlternatives, EmailMessage
+from django.template import loader
+
+
 class geek(View):
     def send_mail1(self):
-            first_name="Ankit"
-            last_name="Tiwari"
             email='shristi.katiyar@tothenew.com'
-            subject = 'welcome to Ankit Tiwari E-commerce Websites'
-            message = f'Hi {first_name} {last_name}, Your order has been done'
-            email_from = EMAIL_HOST_USER
-            recipient_list = [email, ]
-            send_mail(subject, message, email_from, recipient_list)
-            # response={'data':'message'}
-            # return Response(response, status=status.HTTP_200_OK)
+            TEMPLATE_NAME='/home/ankit/Downloads/Geek/geek/send_email/email.html'
+            config = {
+            "template": 'email.html',
+            "subject": 'New Request on Pahal Dashboard',
+            "body": "Sample body",
+            "sender": EMAIL_HOST_USER,
+            "receiver": [email,]
+            }
+            context={}
+            html_msg = loader.render_to_string(config.get("template"), context)
+                
+            msg = EmailMultiAlternatives(config.get('subject'),
+                                        config.get('body', ""),
+                                        config.get('sender'),
+                                        config.get('receiver'),
+                                        config.get('Bcc')
+                                        )
+            msg.attach_alternative(html_msg, "text/html")
+            msg.send(fail_silently=True)
             return HttpResponse('hello world')
